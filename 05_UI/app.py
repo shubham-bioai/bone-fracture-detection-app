@@ -1,3 +1,15 @@
+st.markdown("""
+<style>
+body {
+    background-color: #f5f7fa;
+}
+.reportview-container {
+    padding: 2rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
