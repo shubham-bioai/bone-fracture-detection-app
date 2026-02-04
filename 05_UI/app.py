@@ -32,6 +32,12 @@ st.markdown(
 )
 
 # ---------------- LOAD MODEL ----------------
+
+prediction = model.predict(img_array)[0][0]
+
+confidence = float(prediction * 100)
+result = "Fractured" if prediction > 0.5 else "Normal"
+
 MODEL_PATH = "03_Models/bone_fracture_model_phase1.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
