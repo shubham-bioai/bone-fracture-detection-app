@@ -1,15 +1,3 @@
-"""
-<style>
-body {
-    background-color: #f5f7fa;
-}
-.reportview-container {
-    padding: 2rem;
-}
-</style>
-"""
-
-
 import streamlit as st
 import tensorflow as tf
 import numpy as np
