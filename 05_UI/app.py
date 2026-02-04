@@ -1,9 +1,15 @@
+# ==============================
+# Bone Fracture Detection App
+# © SHUBHAM MADDHESIYA
+# ==============================
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 from datetime import datetime
 from io import BytesIO
+
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
@@ -14,130 +20,123 @@ st.set_page_config(
     layout="centered"
 )
 
+# ---------------- CUSTOM CSS ----------------
+st.markdown("""
+<style>
+.main-card {
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+.result-card {
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border-left: 6px solid #2b7cff;
+}
+.footer {
+    text-align: center;
+    color: gray;
+    font-size: 13px;
+    margin-top: 40px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ---------------- HEADER ----------------
-st.markdown(
-    """
-    <h1 style='text-align: center;'>🦴 Bone Fracture Detection System</h1>
-    <p style='text-align: center; color: grey;'>
-    AI-powered X-ray analysis for fracture detection
-    </p>
-    <hr>
-    """,
-    unsafe_allow_html=True
+st.markdown("<h1 style='text-align:center;'>🦴 Bone Fracture Detection System</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>AI-powered X-ray analysis for fracture detection</p>", unsafe_allow_html=True)
+
+# ---------------- MODEL LOAD ----------------
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model("03_Models/bone_fracture_model_phase1.h5")
+
+model = load_model()
+
+# ---------------- IMAGE UPLOAD ----------------
+st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+
+uploaded_file = st.file_uploader(
+    "📤 Upload X-ray Image",
+    type=["jpg", "jpeg", "png"]
 )
 
-st.markdown(
-    "<p style='text-align:center;'>© SHUBHAM MADDHESIYA</p>",
-    unsafe_allow_html=True
-)
+st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------- LOAD MODEL ----------------
-
-prediction = model.predict(img_array)[0][0]
-
-confidence = float(prediction * 100)
-result = "Fractured" if prediction > 0.5 else "Normal"
-
-MODEL_PATH = "03_Models/bone_fracture_model_phase1.h5"
-model = tf.keras.models.load_model(MODEL_PATH)
-
-# ---------------- PROFESSIONAL PDF GENERATOR ----------------
-from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from datetime import datetime
-
+# ---------------- PDF GENERATOR ----------------
 def generate_pdf(result, confidence):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
 
-    # ---------------- HEADER ----------------
+    # Title
     c.setFont("Helvetica-Bold", 20)
-    c.drawString(50, height - 60, "Bone Fracture Detection Report")
+    c.drawString(50, 800, "Bone Fracture Detection Report")
+
+    # Patient Summary
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, 760, "Patient Summary")
+
+    c.setFont("Helvetica", 12)
+    c.drawString(50, 735, f"Prediction Result: {result}")
+    c.drawString(50, 715, f"Confidence Score: {confidence:.2f}%")
+    c.drawString(50, 695, f"Report Generated: {datetime.now().strftime('%d %B %Y, %H:%M')}")
+
+    # Clinical Info
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, 655, "Clinical Notes")
 
     c.setFont("Helvetica", 11)
-    c.drawString(50, height - 90, "AI-Assisted X-ray Analysis")
-    c.drawRightString(width - 50, height - 90, datetime.now().strftime("%d %B %Y, %H:%M"))
+    c.drawString(50, 630, "- This result is generated using a deep learning model.")
+    c.drawString(50, 610, "- The system analyzes X-ray images for fracture patterns.")
+    c.drawString(50, 590, "- This is NOT a medical diagnosis.")
 
-    c.line(50, height - 100, width - 50, height - 100)
+    # Disclaimer
+    c.setFont("Helvetica-Oblique", 10)
+    c.drawString(50, 550, "Disclaimer: This AI-based assessment is for educational and")
+    c.drawString(50, 535, "screening purposes only. Consult a certified medical professional.")
 
-    # ---------------- PATIENT SUMMARY ----------------
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, height - 140, "1. Examination Summary")
-
-    c.setFont("Helvetica", 12)
-    c.drawString(60, height - 170, f"• Predicted Condition: {result}")
-    c.drawString(60, height - 195, f"• Model Confidence: {confidence:.2f}%")
-    c.drawString(60, height - 220, "• Imaging Type: X-ray")
-
-    # ---------------- FINDINGS ----------------
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, height - 260, "2. AI Findings")
-
-    c.setFont("Helvetica", 12)
-    if result.lower() == "fractured":
-        c.drawString(60, height - 290, 
-            "• The AI model detected patterns consistent with a bone fracture.")
-        c.drawString(60, height - 315, 
-            "• Structural discontinuity and abnormal bone texture were observed.")
-    else:
-        c.drawString(60, height - 290, 
-            "• No significant fracture patterns were detected by the AI model.")
-        c.drawString(60, height - 315, 
-            "• Bone structure appears within normal limits.")
-
-    # ---------------- CLINICAL GUIDANCE ----------------
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, height - 355, "3. Suggested Clinical Guidance")
-
-    c.setFont("Helvetica", 12)
-    c.drawString(60, height - 385, 
-        "• Consult a certified orthopedic specialist for clinical confirmation.")
-    c.drawString(60, height - 410, 
-        "• Further imaging (X-ray / CT / MRI) may be required if symptoms persist.")
-    c.drawString(60, height - 435, 
-        "• Do not rely solely on this report for medical decisions.")
-
-    # ---------------- DISCLAIMER ----------------
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, height - 475, "4. Disclaimer")
-
-    c.setFont("Helvetica", 11)
-    c.drawString(60, height - 505, 
-        "This report is generated using an AI model and is intended for")
-    c.drawString(60, height - 525, 
-        "educational and assistive purposes only. It is NOT a medical diagnosis.")
-
-    # ---------------- FOOTER ----------------
-    c.line(50, 90, width - 50, 90)
+    # Footer
     c.setFont("Helvetica", 10)
-    c.drawString(50, 70, "© SHUBHAM MADDHESIYA")
-    c.drawRightString(width - 50, 70, "Bone Fracture Detection System")
+    c.drawString(50, 500, "© SHUBHAM MADDHESIYA | Bone Fracture Detection System")
 
     c.showPage()
     c.save()
+
     buffer.seek(0)
     return buffer
 
-#--------------Download-----------
+# ---------------- PREDICTION ----------------
+if uploaded_file:
+    image = Image.open(uploaded_file).convert("RGB")
+    st.image(image, caption="Uploaded X-ray Image", use_column_width=True)
 
-pdf_buffer = generate_pdf(result, confidence)
-st.download_button(
-    label="📄 Download Detailed PDF Report",
-    data=pdf_buffer,
-    file_name="Bone_Fracture_Report.pdf",
-    mime="application/pdf"
-)
+    # Preprocess
+    img = image.resize((224, 224))
+    img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
 
+    # Predict
+    prediction = model.predict(img_array)[0][0]
+    confidence = float(prediction * 100)
+    result = "Fractured" if prediction > 0.5 else "Normal"
+
+    # Result UI
+    st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+    st.subheader("🧾 Prediction Result")
+    st.write(f"**Status:** {result}")
+    st.write(f"**Confidence:** {confidence:.2f}%")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # PDF Download
+    pdf_buffer = generate_pdf(result, confidence)
+
+    st.download_button(
+        label="📄 Download Medical PDF Report",
+        data=pdf_buffer,
+        file_name="Bone_Fracture_Report.pdf",
+        mime="application/pdf"
+    )
 
 # ---------------- FOOTER ----------------
-st.markdown(
-    """
-    <hr>
-    <p style='text-align:center; color: grey; font-size: 13px;'>
-    Built with Streamlit & Deep Learning
-    </p>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("<div class='footer'>© SHUBHAM MADDHESIYA · AI for Healthcare</div>", unsafe_allow_html=True)
