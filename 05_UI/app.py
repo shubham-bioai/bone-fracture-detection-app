@@ -35,61 +35,85 @@ st.markdown(
 MODEL_PATH = "03_Models/bone_fracture_model_phase1.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
-# ---------------- PDF FUNCTION ----------------
+# ---------------- PROFESSIONAL PDF GENERATOR ----------------
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from datetime import datetime
+
 def generate_pdf(result, confidence):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
 
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(50, 800, "Bone Fracture Detection Report")
+    # ---------------- HEADER ----------------
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(50, height - 60, "Bone Fracture Detection Report")
+
+    c.setFont("Helvetica", 11)
+    c.drawString(50, height - 90, "AI-Assisted X-ray Analysis")
+    c.drawRightString(width - 50, height - 90, datetime.now().strftime("%d %B %Y, %H:%M"))
+
+    c.line(50, height - 100, width - 50, height - 100)
+
+    # ---------------- PATIENT SUMMARY ----------------
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 140, "1. Examination Summary")
 
     c.setFont("Helvetica", 12)
-    c.drawString(50, 760, f"Prediction Result: {result}")
-    c.drawString(50, 730, f"Confidence Score: {confidence:.2f}%")
-    c.drawString(50, 700, f"Generated on: {datetime.now().strftime('%d %B %Y %H:%M')}")
+    c.drawString(60, height - 170, f"• Predicted Condition: {result}")
+    c.drawString(60, height - 195, f"• Model Confidence: {confidence:.2f}%")
+    c.drawString(60, height - 220, "• Imaging Type: X-ray")
 
-    c.drawString(50, 660, "Disclaimer:")
-    c.drawString(50, 640, "This is an AI-based assessment and not a medical diagnosis.")
+    # ---------------- FINDINGS ----------------
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 260, "2. AI Findings")
 
-    c.drawString(50, 600, "© SHUBHAM MADDHESIYA")
+    c.setFont("Helvetica", 12)
+    if result.lower() == "fractured":
+        c.drawString(60, height - 290, 
+            "• The AI model detected patterns consistent with a bone fracture.")
+        c.drawString(60, height - 315, 
+            "• Structural discontinuity and abnormal bone texture were observed.")
+    else:
+        c.drawString(60, height - 290, 
+            "• No significant fracture patterns were detected by the AI model.")
+        c.drawString(60, height - 315, 
+            "• Bone structure appears within normal limits.")
+
+    # ---------------- CLINICAL GUIDANCE ----------------
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 355, "3. Suggested Clinical Guidance")
+
+    c.setFont("Helvetica", 12)
+    c.drawString(60, height - 385, 
+        "• Consult a certified orthopedic specialist for clinical confirmation.")
+    c.drawString(60, height - 410, 
+        "• Further imaging (X-ray / CT / MRI) may be required if symptoms persist.")
+    c.drawString(60, height - 435, 
+        "• Do not rely solely on this report for medical decisions.")
+
+    # ---------------- DISCLAIMER ----------------
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 475, "4. Disclaimer")
+
+    c.setFont("Helvetica", 11)
+    c.drawString(60, height - 505, 
+        "This report is generated using an AI model and is intended for")
+    c.drawString(60, height - 525, 
+        "educational and assistive purposes only. It is NOT a medical diagnosis.")
+
+    # ---------------- FOOTER ----------------
+    c.line(50, 90, width - 50, 90)
+    c.setFont("Helvetica", 10)
+    c.drawString(50, 70, "© SHUBHAM MADDHESIYA")
+    c.drawRightString(width - 50, 70, "Bone Fracture Detection System")
 
     c.showPage()
     c.save()
-
     buffer.seek(0)
     return buffer
 
-# ---------------- UPLOAD SECTION ----------------
-st.markdown("### 📤 Upload X-ray Image")
-
-uploaded_file = st.file_uploader(
-    "Supported formats: JPG, PNG, JPEG",
-    type=["jpg", "png", "jpeg"]
-)
-
-if uploaded_file:
-    image = Image.open(uploaded_file).convert("RGB")
-
-    st.markdown("### 🖼 Uploaded Image")
-    st.image(image, use_column_width=True)
-
-    # Preprocess
-    img = image.resize((224, 224))
-    img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
-
-    # Prediction
-    prediction = model.predict(img_array)[0][0]
-
-    if prediction > 0.5:
-        result = "Fractured"
-        confidence = prediction * 100
-        st.error(f"🩺 Result: {result}")
-    else:
-        result = "Normal"
-        confidence = (1 - prediction) * 100
-        st.success(f"✅ Result: {result}")
-
-    st.info(f"Confidence Score: {confidence:.2f}%")
 
     # ---------------- PDF DOWNLOAD ----------------
     st.markdown("### 📄 Report")
