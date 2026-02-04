@@ -76,7 +76,7 @@ if uploaded_file:
     st.write(f"**Status:** {result}")
     st.write(f"**Confidence:** {confidence:.2f}%")
 
-   if st.button("📄 Generate PDF Report"):
+    if st.button("📄 Generate PDF Report"):
     pdf_file = generate_pdf(result)
 
     st.download_button(
