@@ -114,7 +114,7 @@ def generate_pdf(result, confidence):
     buffer.seek(0)
     return buffer
 
-#..........Download fuction..........
+#--------------Download-----------
 pdf_buffer = generate_pdf(result, confidence)
 
 st.download_button(
