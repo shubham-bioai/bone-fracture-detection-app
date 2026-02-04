@@ -117,9 +117,9 @@ if uploaded_file:
     img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
 
     # Predict
-THRESHOLD = 0.4
-result = "Fractured" if prediction > THRESHOLD else "Normal"
-confidence = prediction if prediction > THRESHOLD else 1 - prediction
+    prediction = model.predict(img_array)[0][0]
+    confidence = float(prediction * 100)
+    result = "Fractured" if prediction > 0.5 else "Normal"
 
     # Result UI
     st.markdown("<div class='result-card'>", unsafe_allow_html=True)
