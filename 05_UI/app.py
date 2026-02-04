@@ -19,7 +19,7 @@ st.title("🦴 Bone Fracture Detection System")
 st.caption("© SHUBHAM MADDHESIYA")
 
 # ---------------- PATHS ----------------
-BASE_PATH = "/MyDrive/Bone_Fracture_Detection_CNN"
+BASE_PATH = "/Bone_Fracture_Detection_CNN"
 MODEL_PATH = f"{BASE_PATH}/03_Models/bone_fracture_model_phase1.h5"
 REPORT_DIR = f"{BASE_PATH}/06_Reports"
 
