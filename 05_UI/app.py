@@ -114,19 +114,16 @@ def generate_pdf(result, confidence):
     buffer.seek(0)
     return buffer
 
+#..........Download fuction..........
+pdf_buffer = generate_pdf(result, confidence)
 
-    # ---------------- PDF DOWNLOAD ----------------
-    st.markdown("### 📄 Report")
+st.download_button(
+    label="📄 Download Detailed PDF Report",
+    data=pdf_buffer,
+    file_name="Bone_Fracture_Report.pdf",
+    mime="application/pdf"
+)
 
-    if st.button("Generate PDF Report"):
-        pdf_buffer = generate_pdf(result, confidence)
-
-        st.download_button(
-            label="⬇️ Download PDF",
-            data=pdf_buffer,
-            file_name="Bone_Fracture_Report.pdf",
-            mime="application/pdf"
-        )
 
 # ---------------- FOOTER ----------------
 st.markdown(
