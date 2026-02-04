@@ -115,7 +115,7 @@ def generate_pdf(result, confidence):
     return buffer
 
 #--------------Download-----------
-pdf_buffer = generate_pdf(result, confidence)
+
 
 st.download_button(
     label="📄 Download Detailed PDF Report",
