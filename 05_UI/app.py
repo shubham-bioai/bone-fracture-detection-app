@@ -33,23 +33,33 @@ model = load_model()
 
 # ---------------- PDF FUNCTION ----------------
 from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from datetime import datetime
 
-def generate_pdf(result):
+def generate_pdf(result, confidence):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
+
     c.setFont("Helvetica-Bold", 18)
     c.drawString(50, 800, "Bone Fracture Detection Report")
 
     c.setFont("Helvetica", 12)
     c.drawString(50, 760, f"Prediction Result: {result}")
-    c.drawString(50, 730, f"Generated on: {datetime.now().strftime('%d %B %Y %H:%M')}")
-    c.drawString(50, 700, "Disclaimer: This is an AI-based assessment.")
-    c.drawString(50, 670, "© SHUBHAM MADDHESIYA")
+    c.drawString(50, 730, f"Confidence Score: {confidence:.2f}%")
+    c.drawString(50, 700, f"Generated on: {datetime.now().strftime('%d %B %Y %H:%M')}")
+
+    c.drawString(50, 660, "Disclaimer:")
+    c.drawString(50, 640, "This is an AI-based assessment, not a medical diagnosis.")
+
+    c.drawString(50, 600, "© SHUBHAM MADDHESIYA")
 
     c.showPage()
     c.save()
+
     buffer.seek(0)
     return buffer
+
 
 # ---------------- UI ----------------
 uploaded_file = st.file_uploader(
