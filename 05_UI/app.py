@@ -86,8 +86,12 @@ if uploaded_file:
     st.write(f"**Status:** {result}")
     st.write(f"**Confidence:** {confidence:.2f}%")
 
-    if st.button("📄 Download PDF Report"):
-        filename = f"Bone_Fracture_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        pdf_path = os.path.join(REPORT_DIR, filename)
-        generate_pdf(result, confidence, pdf_path)
-        st.success("✅ PDF Report Generated Successfully!")
+    if st.button("📄 Generate PDF Report"):
+    pdf_buffer = generate_pdf(result, confidence)
+
+    st.download_button(
+        label="⬇️ Download PDF Report",
+        data=pdf_buffer,
+        file_name="Bone_Fracture_Report.pdf",
+        mime="application/pdf"
+    )
