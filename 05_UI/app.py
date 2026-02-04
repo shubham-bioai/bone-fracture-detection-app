@@ -32,21 +32,24 @@ def load_model():
 model = load_model()
 
 # ---------------- PDF FUNCTION ----------------
-def generate_pdf(result, confidence, save_path):
-    c = canvas.Canvas(save_path, pagesize=A4)
+from io import BytesIO
+
+def generate_pdf(result):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
     c.setFont("Helvetica-Bold", 18)
-    c.drawString(2*cm, 28*cm, "Bone Fracture Detection Report")
+    c.drawString(50, 800, "Bone Fracture Detection Report")
 
     c.setFont("Helvetica", 12)
-    c.drawString(2*cm, 26.5*cm, f"Date: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}")
-    c.drawString(2*cm, 25.5*cm, f"Prediction Result: {result}")
-    c.drawString(2*cm, 24.5*cm, f"Confidence Score: {confidence:.2f}%")
+    c.drawString(50, 760, f"Prediction Result: {result}")
+    c.drawString(50, 730, f"Generated on: {datetime.now().strftime('%d %B %Y %H:%M')}")
+    c.drawString(50, 700, "Disclaimer: This is an AI-based assessment.")
+    c.drawString(50, 670, "© SHUBHAM MADDHESIYA")
 
-    c.setFont("Helvetica-Oblique", 10)
-    c.drawString(2*cm, 3*cm, "Disclaimer: This tool is for educational purposes only.")
-    c.drawString(2*cm, 2.3*cm, "© SHUBHAM MADDHESIYA")
-
+    c.showPage()
     c.save()
+    buffer.seek(0)
+    return buffer
 
 # ---------------- UI ----------------
 uploaded_file = st.file_uploader(
@@ -73,8 +76,12 @@ if uploaded_file:
     st.write(f"**Status:** {result}")
     st.write(f"**Confidence:** {confidence:.2f}%")
 
-    if st.button("📄 Download PDF Report"):
-        filename = f"Bone_Fracture_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        pdf_path = os.path.join(REPORT_DIR, filename)
-        generate_pdf(result, confidence, pdf_path)
-        st.success("✅ PDF Report Generated Successfully!")
+   if st.button("📄 Generate PDF Report"):
+    pdf_file = generate_pdf(result)
+
+    st.download_button(
+        label="⬇️ Download PDF Report",
+        data=pdf_file,
+        file_name="Bone_Fracture_Report.pdf",
+        mime="application/pdf"
+    )
