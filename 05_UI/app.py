@@ -20,9 +20,8 @@ st.caption("© SHUBHAM MADDHESIYA")
 
 # ---------------- PATHS ----------------
 BASE_PATH = "."
-MODEL_PATH = f"{BASE_PATH}/03_Models/bone_fracture_model_phase1.h5"
-REPORT_DIR = f"{BASE_PATH}/06_Reports"
-
+MODEL_PATH = os.path.join(BASE_PATH, "03_Models", "bone_fracture_model_phase1.h5")
+REPORT_DIR = "/tmp/reports"
 os.makedirs(REPORT_DIR, exist_ok=True)
 
 # ---------------- LOAD MODEL ----------------
