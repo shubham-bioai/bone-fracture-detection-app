@@ -1,7 +1,7 @@
 # 🦴 Bone Fracture Detection System
 
 An end-to-end **AI-powered medical imaging application** that analyzes X-ray images to detect bone fractures, provides confidence-based predictions, and generates **professional, downloadable PDF medical reports** through a clean, patient-friendly web interface.
-
+- live url here you can visit and test my project
 ---
 
 ## 🚨 Problem Statement
