@@ -130,14 +130,6 @@ Reports are downloadable directly to the user’s device.
 
 ---
 
-## 🚀 Live Application
-
-🔗 **Live Demo:** *(Add Streamlit Cloud link here)*
-
-🎥 **Demo Video:** *(Optional – YouTube unlisted link)*
-
----
-
 ## 📈 Achievements & Learnings
 
 * Built a complete AI pipeline from training to deployment
